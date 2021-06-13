@@ -203,13 +203,13 @@
                 }
 
                 if(dataPos > 0) {
-                    cur = data[dataPos-1];
-                    for(var [id, u] of Object.entries(cur.p1)) {
+                    var pre = data[dataPos-1];
+                    for(var [id, u] of Object.entries(pre.p1)) {
                         if(!(id in things)) {
                             things[id] = u[0];
                         }
                     }
-                    for(var [id, u] of Object.entries(cur.p2)) {
+                    for(var [id, u] of Object.entries(pre.p2)) {
                         if(!(id in things)) {
                             things[id] = u[0];
                         }
