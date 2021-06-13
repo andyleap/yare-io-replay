@@ -237,7 +237,7 @@
                 ctx.strokeStyle = "red";
                 ctx.moveTo(8, (h-20) - summaries[0].s1);
                 for(var i in summaries) {
-                    ctx.lineTo(8 + ((w-16) * (i / summaries.length)), (h-20) - (summaries[i].s1));
+                    ctx.lineTo(8 + ((w-16) * (i / (summaries.length-1))), (h-20) - (summaries[i].s1));
                 }
                 ctx.stroke();
 
@@ -245,14 +245,14 @@
                 ctx.strokeStyle = "blue";
                 ctx.moveTo(8, (h-20) - summaries[0].s2);
                 for(var i in summaries) {
-                    ctx.lineTo(8 + ((w-16) * (i / summaries.length)), (h-20) - (summaries[i].s2));
+                    ctx.lineTo(8 + ((w-16) * (i / (summaries.length-1))), (h-20) - (summaries[i].s2));
                 }
                 ctx.stroke();
 
                 ctx.beginPath();
                 ctx.strokeStyle = "white";
-                ctx.moveTo(8 + ((w-16) * (dataPos/summaries.length)), (h-20) - Math.max(summaries[dataPos].s1, summaries[dataPos].s2));
-                ctx.lineTo(8 + ((w-16) * (dataPos/summaries.length)), h-20);
+                ctx.moveTo(8 + ((w-16) * (dataPos/(summaries.length-1))), (h-20) - Math.max(summaries[dataPos].s1, summaries[dataPos].s2));
+                ctx.lineTo(8 + ((w-16) * (dataPos/(summaries.length-1))), h-20);
                 ctx.stroke();
                 
                 var things = { ...base_things};
