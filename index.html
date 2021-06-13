@@ -77,6 +77,14 @@
             }, true);
 
             var data = {};
+            var sides = {}
+                
+
+            var base_things = {
+                star_a1c: [ 3200, 1400 ],
+                star_zxq : [ 1000, 1000 ],
+            };
+            
             function handleFileSelect(evt) {
                 evt.stopPropagation();
                 evt.preventDefault();
@@ -85,6 +93,13 @@
                 
                 files[0].text().then(text => {
                     data = JSON.parse(LZString.decompressFromUTF16(text));
+                    var f1 = Objects.keys(data)[0];
+                    sides = {
+                        s1: Object.keys(f1.p1)[0].split("_")[0],
+                        s2: Object.keys(f1.p2)[0].split("_")[0],
+                    };
+                    base_things["base_" + sides.s1] = [1600, 700];
+                    base_things["base_" + sides.s2] = [2600, 1700];
                     window.requestAnimationFrame(draw);
                     gameEle.style.display = "block";
                     document.getElementById("drop_zone").style.display = "none";
@@ -130,18 +145,7 @@
                 }*/
 
                 
-
-                var sides = {
-                    s1: Object.keys(cur.p1)[0].split("_")[0],
-                    s2: Object.keys(cur.p2)[0].split("_")[0],
-                };
-
-                var things = {
-                    ["base_" + sides.s1]: [1600, 700],
-                    ["base_" + sides.s2]: [ 2600, 1700 ],
-                    star_a1c: [ 3200, 1400 ],
-                    star_zxq : [ 1000, 1000 ],
-                };
+                var things = { ...base_things};
 
                 ctx.fillStyle = "red";
                 ctx.strokeStyle = "red";
@@ -197,6 +201,20 @@
                     ctx.beginPath();
                     ctx.arc(getPos(u[0][0] - center[0], w), getPos(u[0][1] - center[1], h), u[2]*0.5/getScale(), 0, 2 * Math.PI);
                     ctx.fill();
+                }
+
+                if(dataPos > 0) {
+                    cur = Object.values(data)[dataPos];
+                    for(var [id, u] of Object.entries(cur.p1)) {
+                        if(!(id in things)) {
+                            things[id] = u[0];
+                        }
+                    }
+                    for(var [id, u] of Object.entries(cur.p2)) {
+                        if(!(id in things)) {
+                            things[id] = u[0];
+                        }
+                    }
                 }
 
                 for(var e of cur.e) {
