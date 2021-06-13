@@ -93,10 +93,9 @@
                 
                 files[0].text().then(text => {
                     data = JSON.parse(LZString.decompressFromUTF16(text));
-                    var f1 = Object.keys(data)[0];
                     sides = {
-                        s1: Object.keys(f1.p1)[0].split("_")[0],
-                        s2: Object.keys(f1.p2)[0].split("_")[0],
+                        s1: Object.keys(data[0].p1)[0].split("_")[0],
+                        s2: Object.keys(data[0].p2)[0].split("_")[0],
                     };
                     base_things["base_" + sides.s1] = [1600, 700];
                     base_things["base_" + sides.s2] = [2600, 1700];
@@ -133,7 +132,7 @@
                 ctx.fillStyle = "white";
                 ctx.strokeStyle = "white";
 
-                cur = Object.values(data)[dataPos];
+                cur = data[dataPos];
 
                 /*for(var s of update.Stars) {
                     ctx.beginPath();
@@ -204,7 +203,7 @@
                 }
 
                 if(dataPos > 0) {
-                    cur = Object.values(data)[dataPos];
+                    cur = data[dataPos];
                     for(var [id, u] of Object.entries(cur.p1)) {
                         if(!(id in things)) {
                             things[id] = u[0];
