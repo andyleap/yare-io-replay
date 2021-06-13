@@ -203,7 +203,7 @@
                 }
 
                 if(dataPos > 0) {
-                    cur = data[dataPos];
+                    cur = data[dataPos-1];
                     for(var [id, u] of Object.entries(cur.p1)) {
                         if(!(id in things)) {
                             things[id] = u[0];
