@@ -1,0 +1,223 @@
+<html>
+    <head>
+        <style>
+            html, body {
+                margin: 0;
+            }
+        </style>
+    </head>
+    <body>
+        <canvas id="game" style="display: none;"></canvas>
+
+        <div id="drop_zone" style="width: 100%; height: 100%; text-align: center;">Drop replay json here</div>
+        
+        <script>
+            var scale = 4.75;
+            var center = [2100, 1200];
+
+            function getScale() {
+                return (1/16) * 2**scale;
+            }
+
+            function getPos(p, size) {
+                return p/getScale() + size/2;
+            }
+
+            var gameEle = document.getElementById("game");
+
+            gameEle.addEventListener('wheel', function(e) {
+                e.preventDefault();
+                scale += e.deltaY * 0.001;
+                scale = Math.min(Math.max(scale, 1), 20);
+            });
+
+            var lastMouse = [0, 0];
+            var mouseDown = false;
+
+            gameEle.addEventListener('mousedown', function(e) {
+                mouseDown = true;
+                lastMouse = [e.x, e.y];
+            });
+
+            gameEle.addEventListener('mouseup', function(e) {
+                mouseDown = false;
+            });
+
+            gameEle.addEventListener('mousemove', function(e) {
+                if(mouseDown) {
+                    center[0] += (lastMouse[0] - e.x) * getScale();
+                    center[1] += (lastMouse[1] - e.y) * getScale();
+                    lastMouse = [e.x, e.y];
+                }
+            });
+
+            var dataPos = 0;
+
+            window.addEventListener('keydown', e => {
+                e.preventDefault();
+                switch(event.code) {
+                    case "KeyA":
+                    case "ArrowLeft":
+                    // Handle "turn right"
+                    dataPos--;
+                    if(dataPos < 0) {
+                        dataPos = 0;
+                    }
+                    break;
+                    case "KeyD":
+                    case "ArrowRight":
+                    // Handle "turn left"
+                    dataPos++;
+                    if(dataPos >= Object.keys(data).length-1) {
+                        dataPos = Object.keys(data).length-1
+                    }
+                    break;
+                }
+            }, true);
+
+            var data = {};
+            function handleFileSelect(evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+                
+                var files = evt.dataTransfer.files; // FileList object.
+                
+                files[0].text().then(text => {
+                    data = JSON.parse(text);
+                    window.requestAnimationFrame(draw);
+                    gameEle.style.display = "block";
+                    document.getElementById("drop_zone").style.display = "none";
+                });
+            }
+        
+            function handleDragOver(evt) {
+                evt.stopPropagation();
+                evt.preventDefault();
+                evt.dataTransfer.dropEffect = 'copy'; // Explicitly show this is a copy.
+            }
+        
+            // Setup the dnd listeners.
+            var dropZone = document.getElementById('drop_zone');
+            dropZone.addEventListener('dragover', handleDragOver, false);
+            dropZone.addEventListener('drop', handleFileSelect, false);
+
+
+        
+            function draw() {
+                window.requestAnimationFrame(draw);
+
+                var ctx = gameEle.getContext('2d');
+                ctx.canvas.width  = window.innerWidth;
+                ctx.canvas.height = window.innerHeight;
+
+                ctx.fillStyle = "black";
+                ctx.fillRect(0, 0, gameEle.width, gameEle.height);
+                var w = gameEle.width;
+                var h = gameEle.height;
+                ctx.fillStyle = "white";
+                ctx.strokeStyle = "white";
+
+                cur = Object.values(data)[dataPos];
+
+                /*for(var s of update.Stars) {
+                    ctx.beginPath();
+                    ctx.arc(getPos(s.Pos.X - center[0], w), getPos(s.Pos.Y - center[1], h), 1000/getScale(), 0, 2 * Math.PI);
+                    ctx.fill();
+                    ctx.beginPath();
+                    ctx.arc(getPos(s.Pos.X - center[0], w), getPos(s.Pos.Y - center[1], h), s.Size / getScale(), 0, 2 * Math.PI);
+                    ctx.stroke();
+                }*/
+
+                
+
+                var sides = {
+                    s1: Object.keys(cur.p1)[0].split("_")[0],
+                    s2: Object.keys(cur.p2)[0].split("_")[0],
+                };
+
+                var things = {
+                    ["base_" + sides.s1]: [1600, 700],
+                    ["base_" + sides.s2]: [ 2600, 1700 ],
+                    star_a1c: [ 3200, 1400 ],
+                    star_zxq : [ 1000, 1000 ],
+                };
+
+                ctx.fillStyle = "red";
+                ctx.strokeStyle = "red";
+                ctx.beginPath();
+                ctx.arc(getPos(1600 - center[0], w), getPos(700 - center[1], h), 5*5/getScale(), 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(getPos(1600 - center[0], w), getPos(700 - center[1], h), Math.max(0, cur.b1[0]/cur.b1[1]) * 5*5/getScale(), 0, 2 * Math.PI);
+                ctx.fill();
+
+                ctx.fillStyle = "blue";
+                ctx.strokeStyle = "blue";
+                ctx.beginPath();
+                ctx.arc(getPos(2600 - center[0], w), getPos(1700 - center[1], h), 5*5/getScale(), 0, 2 * Math.PI);
+                ctx.stroke();
+                ctx.beginPath();
+                ctx.arc(getPos(2600 - center[0], w), getPos(1700 - center[1], h), Math.max(0, cur.b2[0]/cur.b2[1]) * 5*5/getScale(), 0, 2 * Math.PI);
+                ctx.fill();
+
+                ctx.fillStyle = "white";
+                ctx.beginPath();
+                ctx.arc(getPos(3200 - center[0], w), getPos(1400 - center[1], h), 10*5/getScale(), 0, 2 * Math.PI);
+                ctx.fill();
+                ctx.beginPath();
+                ctx.arc(getPos(1000 - center[0], w), getPos(1000 - center[1], h), 10*5/getScale(), 0, 2 * Math.PI);
+                ctx.fill();
+
+                for(var [id, u] of Object.entries(cur.p1)) {
+
+                    if(u[3] < 0.5) {
+                        continue;
+                    }
+                    ctx.fillStyle = "red";
+                    ctx.strokeStyle = "red";
+
+                    things[id] = u[0];
+
+                    ctx.beginPath();
+                    ctx.arc(getPos(u[0][0] - center[0], w), getPos(u[0][1] - center[1], h), u[1]*5/getScale(), 0, 2 * Math.PI);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(getPos(u[0][0] - center[0], w), getPos(u[0][1] - center[1], h), u[2]*0.5/getScale(), 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+
+                for(var [id, u] of Object.entries(cur.p2)) {
+                    if(u[3] < 0.5) {
+                        continue;
+                    }
+                    ctx.fillStyle = "blue";
+                    ctx.strokeStyle = "blue";
+
+                    things[id] = u[0];
+
+                    ctx.beginPath();
+                    ctx.arc(getPos(u[0][0] - center[0], w), getPos(u[0][1] - center[1], h), u[1]*5/getScale(), 0, 2 * Math.PI);
+                    ctx.stroke();
+
+                    ctx.beginPath();
+                    ctx.arc(getPos(u[0][0] - center[0], w), getPos(u[0][1] - center[1], h), u[2]*0.5/getScale(), 0, 2 * Math.PI);
+                    ctx.fill();
+                }
+
+                for(var e of cur.e) {
+                    ctx.strokeStyle = "#FFFFFFAA";
+
+                    ctx.beginPath();
+                    ctx.moveTo(getPos(things[e[0]][0] - center[0], w), getPos(things[e[0]][1] - center[1], h));
+                    ctx.lineTo(getPos(things[e[1]][0] - center[0], w), getPos(things[e[1]][1] - center[1], h));
+                    ctx.stroke();
+                }
+
+                
+            }
+        </script>
+
+    </body>
+</html>
+
