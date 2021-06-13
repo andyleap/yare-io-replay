@@ -93,7 +93,7 @@
                 
                 files[0].text().then(text => {
                     data = JSON.parse(LZString.decompressFromUTF16(text));
-                    var f1 = Objects.keys(data)[0];
+                    var f1 = Object.keys(data)[0];
                     sides = {
                         s1: Object.keys(f1.p1)[0].split("_")[0],
                         s2: Object.keys(f1.p2)[0].split("_")[0],
